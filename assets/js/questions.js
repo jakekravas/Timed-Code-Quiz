@@ -5,8 +5,9 @@ let seconds = document.getElementById("seconds");
 let quizHeader = document.getElementById("quiz-header");
 let quizContent = document.getElementById("quiz-content");
 let choice = document.getElementById("choice-btn");
-let scoreArr = [];
-let x = 0;
+let scoreArray = [];
+let score = 0;
+let secondsLeft = 75;
 
 let questions = [{
     title: "What is something we're likely to use if we want to iterate through an object/array?",
@@ -17,20 +18,22 @@ let questions = [{
     choices: ["curly brackets", "square brackets", "quotation marks", "parentheses"],
     answer: "square brackets"
 }, {
-    title: "this is my third title",
-    choices: ["aaaa", "bbbbb", "ccccc", "ddddd"],
-    answer: "aaaa"
+    title: "Which of the following is NOT a keyword used to declare a variable?",
+    choices: ["const", "var", "let", "script"],
+    answer: "script"
+}, {
+    title: "What is the global scope object in JavaScript?",
+    choices: ["document" , "function" , "window" , "return"],
+    answer: "window"
+}, {
+    title: "Which of the following is commonly used to add a child to an element?",
+    choices: ["appendChild()" , "firstChild" , "childElementCount" , "lastElementChild"],
+    answer: "appendChild()"
 }];
 
-// Load event listener
 start.addEventListener("click" , startQuiz);
 
 function showQuestion(n){
-
-    // if (x >= questions.length) {
-    //     console.log(scoreArr);
-    //     return scoreArr;
-    // }
 
     quizHeader.textContent = questions[n].title;
 
@@ -54,8 +57,6 @@ function showQuestion(n){
     choice4.className = "btn btn-dark btn-block";
     choice4.id = "choice-btn";
 
-    let choice = document.getElementById("choice-btn");
-
     choice1.textContent = questions[n].choices[0];
     choice2.textContent = questions[n].choices[1];
     choice3.textContent = questions[n].choices[2];
@@ -73,42 +74,80 @@ function showQuestion(n){
     quizContent.addEventListener("click", myFunction);
 
     function myFunction(e){
-
-        if (e.target.id === "choice-btn" && e.target.textContent === questions[x].answer) {
-            console.log("right");
-            scoreArr.push(true);
-            console.log(scoreArr);
-            hideQuestion();
-            x++;
-            console.log(x);
+        if (e.target.id === "choice-btn" && e.target.textContent === questions[n].answer) {
+            scoreArray.push(true);
+            console.log(scoreArray);
+            n++;
+            console.log(n);
+            score = score + 10;
+            console.log("Score: " + score);
             quizContent.removeEventListener("click", myFunction);
-            if (x < questions.length){
-                showQuestion(x);
+            if (n < questions.length){
+                hideQuestion();
+                showQuestion(n);
+            } else {
+                score = score + secondsLeft;
+                console.log("Score " + score);
+                secondsLeft = 0;
+                seconds.textContent = 0;
+                hideQuestion();
+                doneScreen()
             }
 
-        } else if (e.target.id === "choice-btn" && e.target.textContent !== questions[x].answer) {
-            console.log("wrong");
-            scoreArr.push(false);
-            console.log(scoreArr);
-            hideQuestion();
-            x++;
-            console.log(x);
+        } else if (e.target.id === "choice-btn" && e.target.textContent !== questions[n].answer) {
+            scoreArray.push(false);
+            console.log(scoreArray);
+            n++;
+            console.log(n);
             quizContent.removeEventListener("click", myFunction);
-            if (x < questions.length){
-                showQuestion(x);
+            if (n < questions.length && secondsLeft > 5){
+                secondsLeft = secondsLeft - 10;
+                hideQuestion();
+                showQuestion(n);
+            } else if (n < questions.length && secondsLeft <= 5) {
+                secondsLeft = 0;
+                seconds.textContent = secondsLeft;
+                hideQuestion();
+                doneScreen();
+            } else {
+                console.log("Score " + score);
+                secondsLeft = 0;
+                seconds.textContent = secondsLeft;
+                hideQuestion();
+                doneScreen();
             }
         }
-
-        e.preventDefault();
     }
 }
 
 function hideQuestion(){
-    quizContent.lastElementChild.remove();
+    if (quizContent.lastElementChild.textContent != "All done!") {
+        quizContent.lastElementChild.remove();
+    }
 }
 
+function doneScreen(){
+    quizHeader.textContent = "All done!";
+    let doneText = document.createElement("p");
+    doneText.textContent = "Your final score is " + score;
+    quizContent.appendChild(doneText);
+}
 
 function startQuiz(){
+
+    seconds.textContent = 75;
+    countDown = setInterval(timer, 1000);
+    function timer(){
+        secondsLeft--;
+        seconds.textContent = secondsLeft;
+        if (secondsLeft < 1) {
+            seconds.textContent = 0;
+            hideQuestion();
+            doneScreen();
+            clearInterval(countDown);
+        }
+    }
+
     quizHeader.nextElementSibling.remove();
     document.getElementById("start-button").remove();
 
