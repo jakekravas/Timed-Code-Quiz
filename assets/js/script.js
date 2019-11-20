@@ -12,6 +12,31 @@ let secondsLeft = 75;
 
 start.addEventListener("click" , startQuiz);
 
+function startQuiz(){
+    // Removing initial text and start button
+    quizHeader.nextElementSibling.remove();
+    document.getElementById("start-button").remove();
+
+    // Starting timer
+    seconds.textContent = 75;
+    countDown = setInterval(timer, 1000);
+    function timer(){
+        secondsLeft--;
+        seconds.textContent = secondsLeft;
+        if (secondsLeft < 1) {
+            seconds.textContent = 0;
+            clearInterval(countDown);
+
+            // Hiding questions and showing done screen when time runs out
+            hideQuestion();
+            doneScreen();
+        }
+    }
+
+    // Looping through questions
+    questionLoop(0);
+}
+
 function questionLoop(n){
 
     quizHeader.textContent = questions[n].title;
@@ -140,29 +165,4 @@ function doneScreen(){
     submitButton.className = "btn btn-dark";
     submitButton.textContent = "Submit";
     formInlineDiv.appendChild(submitButton);
-}
-
-function startQuiz(){
-    // Removing initial text and start button
-    quizHeader.nextElementSibling.remove();
-    document.getElementById("start-button").remove();
-
-    // Starting timer
-    seconds.textContent = 75;
-    countDown = setInterval(timer, 1000);
-    function timer(){
-        secondsLeft--;
-        seconds.textContent = secondsLeft;
-        if (secondsLeft < 1) {
-            seconds.textContent = 0;
-            clearInterval(countDown);
-
-            // Hiding questions and showing done screen when time runs out
-            hideQuestion();
-            doneScreen();
-        }
-    }
-
-    // Looping through questions
-    questionLoop(0);
 }
