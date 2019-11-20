@@ -4,7 +4,6 @@ let highScores = document.getElementById("highscores");
 let seconds = document.getElementById("seconds");
 let quizHeader = document.getElementById("quiz-header");
 let quizContent = document.getElementById("quiz-content");
-// let choice = document.getElementById("choice-btn");
 let incorrectAlert = document.getElementById("incorrect-alert");
 let correctAlert = document.getElementById("correct-alert");
 let score = 0;
