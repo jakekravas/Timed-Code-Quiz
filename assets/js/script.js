@@ -5,13 +5,14 @@ let seconds = document.getElementById("seconds");
 let quizHeader = document.getElementById("quiz-header");
 let quizContent = document.getElementById("quiz-content");
 let choice = document.getElementById("choice-btn");
-let scoreArray = [];
+let incorrectAlert = document.getElementById("incorrect-alert");
+let correctAlert = document.getElementById("correct-alert");
 let score = 0;
 let secondsLeft = 75;
 
 start.addEventListener("click" , startQuiz);
 
-function showQuestion(n){
+function questionLoop(n){
 
     quizHeader.textContent = questions[n].title;
 
@@ -49,41 +50,41 @@ function showQuestion(n){
 
     quizContent.appendChild(rowDiv);
 
-    quizContent.addEventListener("click", myFunction);
+    quizContent.addEventListener("click", getUserChoice);
 
-    function myFunction(e){
+    function getUserChoice(e){
+        // If the user clicks a button with text content that's equal to the correct answer
         if (e.target.id === "choice-btn" && e.target.textContent === questions[n].answer) {
-            scoreArray.push(true);
-            console.log(scoreArray);
             n++;
-            console.log(n);
             score = score + 100;
             console.log("Score: " + score);
-            quizContent.removeEventListener("click", myFunction);
+            correctAlert.removeAttribute("hidden");
+            setTimeout(hideCorrectAlert, 500);
+
+            quizContent.removeEventListener("click", getUserChoice); //removes event listener
             if (n < questions.length){
                 hideQuestion();
-                showQuestion(n);
+                questionLoop(n);
             } else {
                 score = score + secondsLeft;
                 console.log("Score " + score);
                 secondsLeft = 0;
                 seconds.textContent = 0;
-                // hideQuestion();
-                // doneScreen()
             }
 
+        // If the user clicks a button with text content that's not equal to the correct answer
         } else if (e.target.id === "choice-btn" && e.target.textContent !== questions[n].answer) {
-            scoreArray.push(false);
-            console.log(scoreArray);
             n++;
-            console.log(n);
             console.log("Score: " + score);
-            quizContent.removeEventListener("click", myFunction);
+            incorrectAlert.removeAttribute("hidden");
+            setTimeout(hideIncorrectAlert, 500);
+
+            quizContent.removeEventListener("click", getUserChoice); //removes event listener
             if (n < questions.length && secondsLeft > 5){
                 secondsLeft = secondsLeft - 10;
                 seconds.textContent = secondsLeft;
                 hideQuestion();
-                showQuestion(n);
+                questionLoop(n);
             } else if (n < questions.length && secondsLeft <= 5) {
                 secondsLeft = 0;
                 seconds.textContent = secondsLeft;
@@ -101,6 +102,14 @@ function showQuestion(n){
     }
 }
 
+function hideCorrectAlert(){
+    correctAlert.setAttribute("hidden", true);
+}
+
+function hideIncorrectAlert(){
+    incorrectAlert.setAttribute("hidden", true);
+}
+
 function hideQuestion(){
     if (quizContent.lastElementChild.textContent != "All done!") {
         quizContent.lastElementChild.remove();
@@ -109,19 +118,36 @@ function hideQuestion(){
 
 function doneScreen(){
     quizHeader.textContent = "All done!";
+
     // Creating and appending p element
     let doneText = document.createElement("p");
     doneText.textContent = "Your final score is " + score;
     quizContent.appendChild(doneText);
 
-    // Creating and appending name input
-    let doneInput = document.createElement("input");
-    quizContent.appendChild(doneInput);
+    // Creating form inline div
+    let formInlineDiv = document.createElement("div");
+    formInlineDiv.className = "form-inline justify-content-center";
+    quizContent.appendChild(formInlineDiv);
 
+    // Creating and appending name input
+    let nameInput = document.createElement("input");
+    nameInput.setAttribute("placeholder", "Name");
+    nameInput.className = "form-control mr-2";
+    formInlineDiv.appendChild(nameInput);
+
+    // Creating and appending submit button
+    let submitButton = document.createElement("button");
+    submitButton.className = "btn btn-dark";
+    submitButton.textContent = "Submit";
+    formInlineDiv.appendChild(submitButton);
 }
 
 function startQuiz(){
+    // Removing initial text and start button
+    quizHeader.nextElementSibling.remove();
+    document.getElementById("start-button").remove();
 
+    // Starting timer
     seconds.textContent = 75;
     countDown = setInterval(timer, 1000);
     function timer(){
@@ -130,13 +156,13 @@ function startQuiz(){
         if (secondsLeft < 1) {
             seconds.textContent = 0;
             clearInterval(countDown);
+
+            // Hiding questions and showing done screen when time runs out
             hideQuestion();
             doneScreen();
         }
     }
 
-    quizHeader.nextElementSibling.remove();
-    document.getElementById("start-button").remove();
-
-    showQuestion(0);
+    // Looping through questions
+    questionLoop(0);
 }
