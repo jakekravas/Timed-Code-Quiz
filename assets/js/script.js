@@ -4,18 +4,28 @@ let highScores = document.getElementById("highscores");
 let seconds = document.getElementById("seconds");
 let quizHeader = document.getElementById("quiz-header");
 let quizContent = document.getElementById("quiz-content");
-let choice = document.getElementById("choice-btn");
+// let choice = document.getElementById("choice-btn");
 let incorrectAlert = document.getElementById("incorrect-alert");
 let correctAlert = document.getElementById("correct-alert");
 let score = 0;
+let namesArray = [];
+let scoresArray = [];
 let secondsLeft = 75;
 
 start.addEventListener("click" , startQuiz);
 
+document.getElementById("highscores").addEventListener("click" , function(e){
+    showHighScore();
+    e.preventDefault();
+})
+
 function startQuiz(){
-    // Removing initial text and start button
+    // Removing start button and initial text
     quizHeader.nextElementSibling.remove();
     document.getElementById("start-button").remove();
+
+    // Beginning to ask the user questions
+    questionLoop(0);
 
     // Starting timer
     seconds.textContent = 75;
@@ -32,33 +42,29 @@ function startQuiz(){
             doneScreen();
         }
     }
-
-    // Looping through questions
-    questionLoop(0);
 }
 
 function questionLoop(n){
-
     quizHeader.textContent = questions[n].title;
 
     let rowDiv = document.createElement("div");
     let colDiv = document.createElement("div");
+
     colDiv.className = "col-md-9 col-lg-5 mx-auto";
 
     let choice1 = document.createElement("button");
-    choice1.className = "btn btn-dark btn-block";
-    choice1.id = "choice-btn";
-
     let choice2 = document.createElement("button");
-    choice2.className = "btn btn-dark btn-block";
-    choice2.id = "choice-btn";
-
     let choice3 = document.createElement("button");
-    choice3.className = "btn btn-dark btn-block";
-    choice3.id = "choice-btn";
-
     let choice4 = document.createElement("button");
+
+    choice1.className = "btn btn-dark btn-block";
+    choice2.className = "btn btn-dark btn-block";
+    choice3.className = "btn btn-dark btn-block";
     choice4.className = "btn btn-dark btn-block";
+
+    choice1.id = "choice-btn";
+    choice2.id = "choice-btn";
+    choice3.id = "choice-btn";
     choice4.id = "choice-btn";
 
     choice1.textContent = questions[n].choices[0];
@@ -83,8 +89,8 @@ function questionLoop(n){
             n++;
             score = score + 100;
             console.log("Score: " + score);
-            correctAlert.removeAttribute("hidden");
-            setTimeout(hideCorrectAlert, 500);
+            correctAlert.removeAttribute("hidden"); //Shows "Correct!"" alert
+            setTimeout(hideCorrectAlert, 500); //Hides "Correct!" alert after .5 seconds
 
             quizContent.removeEventListener("click", getUserChoice); //removes event listener
             if (n < questions.length){
@@ -144,25 +150,80 @@ function hideQuestion(){
 function doneScreen(){
     quizHeader.textContent = "All done!";
 
-    // Creating and appending p element
+    // Creating elements for done screen
     let doneText = document.createElement("p");
-    doneText.textContent = "Your final score is " + score;
-    quizContent.appendChild(doneText);
-
-    // Creating form inline div
     let formInlineDiv = document.createElement("div");
-    formInlineDiv.className = "form-inline justify-content-center";
-    quizContent.appendChild(formInlineDiv);
-
-    // Creating and appending name input
     let nameInput = document.createElement("input");
-    nameInput.setAttribute("placeholder", "Name");
-    nameInput.className = "form-control mr-2";
-    formInlineDiv.appendChild(nameInput);
-
-    // Creating and appending submit button
     let submitButton = document.createElement("button");
+
+    // Adding attributes and text content to created elements
+    doneText.textContent = "Your final score is " + score;
+    formInlineDiv.className = "form-inline justify-content-center";
+    nameInput.className = "form-control mr-2";
+    nameInput.id = "name-input";
+    nameInput.setAttribute("placeholder", "Name");
     submitButton.className = "btn btn-dark";
     submitButton.textContent = "Submit";
+    
+    // Appending elements to page
+    formInlineDiv.appendChild(nameInput);
     formInlineDiv.appendChild(submitButton);
+    quizContent.appendChild(doneText);
+    quizContent.appendChild(formInlineDiv);
+    
+    submitButton.addEventListener("click" , addToLS);
+}
+
+function addToLS(){    
+    let scoresLS = localStorage.getItem("All Scores");
+    let namesLS = localStorage.getItem("All Names");
+
+    if (scoresLS === null) {
+        scoresArray = [];
+    } else {
+        scoresArray = JSON.parse(localStorage.getItem("All Scores"));
+    }
+
+    if (namesLS === null) {
+        namesArray = [];
+    } else {
+        namesArray = JSON.parse(localStorage.getItem("All Names"));
+    }
+
+    scoresArray.push(score);
+    namesArray.push(document.getElementById("name-input").value);
+
+    localStorage.setItem("All Scores" , JSON.stringify(scoresArray));
+    localStorage.setItem("All Names" , JSON.stringify(namesArray));
+
+    console.log(scoresArray);
+    console.log(namesArray);
+    showHighScore();
+}
+
+function showHighScore(){
+    quizContent.innerHTML = "";
+    quizContent.appendChild(quizHeader);
+    quizHeader.textContent = "High Score:"
+
+    scoresArr = JSON.parse(localStorage.getItem("All Scores"));
+    namesArr = JSON.parse(localStorage.getItem("All Names"));
+
+    let maxOfScoresArr = Math.max(...scoresArr);
+    let maxOfNamesArr = namesArr[scoresArr.indexOf(maxOfScoresArr)];
+
+    highScoreList = document.createElement("ol");
+
+    highScoreItem = document.createElement("li");
+    highScoreItem.textContent = "Highest score - " + maxOfNamesArr +  ": " + maxOfScoresArr;
+
+    highScoreList.appendChild(highScoreItem);
+
+    quizContent.appendChild(highScoreList);
+
+    let goBackLink = document.createElement("a");
+    goBackLink.className = "btn btn-dark";
+    goBackLink.setAttribute("href", "index.html");
+    goBackLink.textContent = "Go back";
+    quizContent.appendChild(goBackLink);
 }
