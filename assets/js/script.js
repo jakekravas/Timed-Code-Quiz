@@ -56,15 +56,10 @@ function questionLoop(n){
     let choice3 = document.createElement("button");
     let choice4 = document.createElement("button");
 
-    choice1.className = "btn btn-dark btn-block";
-    choice2.className = "btn btn-dark btn-block";
-    choice3.className = "btn btn-dark btn-block";
-    choice4.className = "btn btn-dark btn-block";
-
-    choice1.id = "choice-btn";
-    choice2.id = "choice-btn";
-    choice3.id = "choice-btn";
-    choice4.id = "choice-btn";
+    choice1.className = "btn btn-dark btn-block choice-btn";
+    choice2.className = "btn btn-dark btn-block choice-btn";
+    choice3.className = "btn btn-dark btn-block choice-btn";
+    choice4.className = "btn btn-dark btn-block choice-btn";
 
     choice1.textContent = questions[n].choices[0];
     choice2.textContent = questions[n].choices[1];
@@ -77,16 +72,14 @@ function questionLoop(n){
     colDiv.appendChild(choice4);
 
     rowDiv.appendChild(colDiv);
-
     quizContent.appendChild(rowDiv);
-
     quizContent.addEventListener("click", getUserChoice);
 
     function getUserChoice(e){
         // If the user clicks a button with text content that's equal to the correct answer
-        if (e.target.id === "choice-btn" && e.target.textContent === questions[n].answer) {
+        if (e.target.className.includes("choice-btn") && e.target.textContent === questions[n].answer) {
             n++;
-            score = score + 100;
+            score = score + 100; //Adds 100 to users score
             console.log("Score: " + score);
             correctAlert.removeAttribute("hidden"); //Shows "Correct!"" alert
             setTimeout(hideCorrectAlert, 500); //Hides "Correct!" alert after .5 seconds
@@ -96,14 +89,14 @@ function questionLoop(n){
                 hideQuestion();
                 questionLoop(n);
             } else {
-                score = score + secondsLeft;
+                score = score + secondsLeft; //Adds any remaining seconds to final score (as long as the user answered at least one question correctly)
                 console.log("Score " + score);
                 secondsLeft = 0;
                 seconds.textContent = 0;
             }
 
         // If the user clicks a button with text content that's not equal to the correct answer
-        } else if (e.target.id === "choice-btn" && e.target.textContent !== questions[n].answer) {
+        } else if (e.target.className.includes("choice-btn") && e.target.textContent !== questions[n].answer) {
             n++;
             console.log("Score: " + score);
             incorrectAlert.removeAttribute("hidden");
