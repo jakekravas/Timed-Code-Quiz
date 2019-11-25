@@ -51,6 +51,7 @@ function questionLoop(n){
 
     colDiv.className = "col-md-9 col-lg-5 mx-auto";
 
+    // Creating choice buttons
     let choice1 = document.createElement("button");
     let choice2 = document.createElement("button");
     let choice3 = document.createElement("button");
@@ -66,6 +67,7 @@ function questionLoop(n){
     choice3.textContent = questions[n].choices[2];
     choice4.textContent = questions[n].choices[3];
 
+    // Appending created elements
     colDiv.appendChild(choice1);
     colDiv.appendChild(choice2);
     colDiv.appendChild(choice3);
@@ -80,16 +82,15 @@ function questionLoop(n){
         if (e.target.className.includes("choice-btn") && e.target.textContent === questions[n].answer) {
             n++;
             score = score + 100; //Adds 100 to users score
-            console.log("Score: " + score);
             correctAlert.removeAttribute("hidden"); //Shows "Correct!"" alert
             setTimeout(hideCorrectAlert, 500); //Hides "Correct!" alert after .5 seconds
 
             quizContent.removeEventListener("click", getUserChoice); //removes event listener
             if (n < questions.length){
-                hideQuestion();
-                questionLoop(n);
+                hideQuestion(); //Hides question
+                questionLoop(n); //Goes to next question
             } else {
-                score = score + secondsLeft; //Adds any remaining seconds to final score (as long as the user answered at least one question correctly)
+                score = score + secondsLeft; //Adds any remaining seconds to final score
                 console.log("Score " + score);
                 secondsLeft = 0;
                 seconds.textContent = 0;
@@ -100,24 +101,23 @@ function questionLoop(n){
             n++;
             console.log("Score: " + score);
             incorrectAlert.removeAttribute("hidden");
-            setTimeout(hideIncorrectAlert, 500);
+            setTimeout(hideIncorrectAlert, 500); //Hides "Incorrect" alert after .5 seconds
 
             quizContent.removeEventListener("click", getUserChoice); //removes event listener
             if (n < questions.length && secondsLeft > 5){
                 secondsLeft = secondsLeft - 10;
                 seconds.textContent = secondsLeft;
-                hideQuestion();
-                questionLoop(n);
+                hideQuestion(); //Hides question
+                questionLoop(n); //Goes to next question
             } else if (n < questions.length && secondsLeft <= 5) {
                 secondsLeft = 0;
                 seconds.textContent = secondsLeft;
-                hideQuestion();
+                hideQuestion(); //Hides question
                 doneScreen();
             } else {
                 if (score > 0){
-                    score = score + secondsLeft;
+                    score = score + secondsLeft
                 }
-                console.log("Score " + score);
                 secondsLeft = 0;
                 seconds.textContent = secondsLeft;
             }
@@ -125,21 +125,21 @@ function questionLoop(n){
     }
 }
 
-function hideCorrectAlert(){
+function hideCorrectAlert(){ //Function to hide "Correct!" alert
     correctAlert.setAttribute("hidden", true);
 }
 
-function hideIncorrectAlert(){
+function hideIncorrectAlert(){ //Function to hide "Incorrect" alert
     incorrectAlert.setAttribute("hidden", true);
 }
 
-function hideQuestion(){
+function hideQuestion(){ //Function to hide question
     if (quizContent.lastElementChild.textContent != "All done!") {
         quizContent.lastElementChild.remove();
     }
 }
 
-function doneScreen(){
+function doneScreen(){ //Screen we go to after the quiz is complete
     quizHeader.textContent = "All done!";
 
     // Creating elements for done screen
@@ -166,7 +166,7 @@ function doneScreen(){
     submitButton.addEventListener("click" , addToLS);
 }
 
-function addToLS(){    
+function addToLS(){ //Adds score to local storage
     let scoresLS = localStorage.getItem("All Scores");
     let namesLS = localStorage.getItem("All Names");
 
@@ -182,40 +182,36 @@ function addToLS(){
         namesArray = JSON.parse(localStorage.getItem("All Names"));
     }
 
-    scoresArray.push(score);
-    namesArray.push(document.getElementById("name-input").value);
+    scoresArray.push(score); //Adding score to scoresArray
+    namesArray.push(document.getElementById("name-input").value); //Adding name to namesArray
 
-    localStorage.setItem("All Scores" , JSON.stringify(scoresArray));
-    localStorage.setItem("All Names" , JSON.stringify(namesArray));
+    localStorage.setItem("All Scores" , JSON.stringify(scoresArray)); //Setting scoresArray to Local Storage
+    localStorage.setItem("All Names" , JSON.stringify(namesArray)); //Setting namesArray to Local Storage
 
-    console.log(scoresArray);
-    console.log(namesArray);
     showHighScore();
 }
 
-function showHighScore(){
-    quizContent.innerHTML = "";
+function showHighScore(){ //Shows high score
+    quizContent.innerHTML = ""; //Clears quiz content
     quizContent.appendChild(quizHeader);
     quizHeader.textContent = "High Score:"
 
     scoresArr = JSON.parse(localStorage.getItem("All Scores"));
     namesArr = JSON.parse(localStorage.getItem("All Names"));
 
-    let maxOfScoresArr = Math.max(...scoresArr);
-    let maxOfNamesArr = namesArr[scoresArr.indexOf(maxOfScoresArr)];
+    let maxOfScoresArr = Math.max(...scoresArr); //Gets maximum value of scoresArr
+    let maxOfNamesArr = namesArr[scoresArr.indexOf(maxOfScoresArr)]; //Gets name of highest scorer
 
     highScoreList = document.createElement("ol");
-
     highScoreItem = document.createElement("li");
-    highScoreItem.textContent = "Highest score - " + maxOfNamesArr +  ": " + maxOfScoresArr;
-
-    highScoreList.appendChild(highScoreItem);
-
-    quizContent.appendChild(highScoreList);
-
     let goBackLink = document.createElement("a");
+
+    highScoreItem.textContent = "Highest score - " + maxOfNamesArr +  ": " + maxOfScoresArr;
+    goBackLink.textContent = "Go back";
     goBackLink.className = "btn btn-dark";
     goBackLink.setAttribute("href", "index.html");
-    goBackLink.textContent = "Go back";
+
+    highScoreList.appendChild(highScoreItem);
+    quizContent.appendChild(highScoreList);
     quizContent.appendChild(goBackLink);
 }
