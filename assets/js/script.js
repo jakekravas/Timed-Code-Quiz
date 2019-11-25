@@ -91,7 +91,6 @@ function questionLoop(n){
                 questionLoop(n); //Goes to next question
             } else {
                 score = score + secondsLeft; //Adds any remaining seconds to final score
-                console.log("Score " + score);
                 secondsLeft = 0;
                 seconds.textContent = 0;
             }
@@ -99,7 +98,6 @@ function questionLoop(n){
         // If the user clicks a button with text content that's not equal to the correct answer
         } else if (e.target.className.includes("choice-btn") && e.target.textContent !== questions[n].answer) {
             n++;
-            console.log("Score: " + score);
             incorrectAlert.removeAttribute("hidden");
             setTimeout(hideIncorrectAlert, 500); //Hides "Incorrect" alert after .5 seconds
 
